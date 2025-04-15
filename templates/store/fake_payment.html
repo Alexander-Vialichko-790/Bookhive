@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Оплата заказа{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-body">
+          <h4 class="card-title text-center mb-4">💳 Оплата заказа №{{ order.id }}</h4>
+          <h4 class="text-center mb-4">Сумма к оплате: <strong>{{ final_total }} ₽</strong></h4>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="card_number" class="form-label">Номер карты</label>
+              <input type="text" class="form-control" id="card_number" name="card_number"
+                     placeholder="1234 5678 9012 3456"
+                     pattern="^\d{4} \d{4} \d{4} \d{4}$"
+                     title="Введите 16 цифр (например: 1234 5678 9012 3456)"
+                     required maxlength="19">
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <label for="expiry" class="form-label">Срок действия</label>
+                <input type="text" class="form-control" id="expiry" name="expiry"
+                       placeholder="MM/YY"
+                       pattern="^(0[1-9]|1[0-2])\/\d{2}$"
+                       title="Введите срок действия в формате MM/YY"
+                       required maxlength="5">
+              </div>
+              <div class="col">
+                <label for="cvv" class="form-label">CVV</label>
+                <input type="text" class="form-control" id="cvv" name="cvv"
+                       placeholder="123"
+                       pattern="^\d{3}$"
+                       title="Введите 3 цифры CVV"
+                       required maxlength="3">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Подтвердить оплату</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Маска для номера карты
+  const cardInput = document.getElementById('card_number');
+  cardInput.addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '').substring(0, 16);
+    let formatted = value.replace(/(.{4})/g, '$1 ').trim();
+    e.target.value = formatted;
+  });
+
+  // Маска для срока действия
+  const expiryInput = document.getElementById('expiry');
+  expiryInput.addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '').substring(0, 4);
+    if (value.length >= 3) {
+      value = value.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+    }
+    e.target.value = value;
+  });
+</script>
+{% endblock %}

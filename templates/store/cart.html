@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Моя корзина</h2>
+
+{% if items %}
+    <table class="table" id="cart-table">
+        <thead>
+            <tr>
+                <th>Книга</th>
+                <th>Цена</th>
+                <th>Кол-во</th>
+                <th>Сумма</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr data-item-id="{{ item.pk }}">
+                <td>
+                    {{ item.book.title }}<br>
+                    {% if item.book.cashback %}
+                        <small class="text-success">Кэшбэк: {{ item.book.cashback }} ₽</small>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.book.discount %}
+                        <del class="text-muted">{{ item.book.price }} ₽</del><br>
+                        <strong class="text-danger">{{ item.book.discounted_price }} ₽</strong>
+                    {% else %}
+                        {{ item.book.price }} ₽
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="number" class="form-control form-control-sm quantity-input"
+                           data-item-id="{{ item.pk }}" value="{{ item.quantity }}" min="1">
+                </td>
+                <td class="item-total">{{ item.get_total_price|floatformat:2 }} ₽</td>
+                <td>
+                    <button class="btn btn-sm btn-danger remove-item" data-book-id="{{ item.book.pk }}">Удалить</button>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3"><strong>Общая сумма:</strong></td>
+                <td><strong id="cart-total">{{ total_price|floatformat:2 }} ₽</strong></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-end mt-4">
+        <a href="{% url 'order_create' %}" class="btn btn-success">Оформить заказ</a>
+    </div>
+{% else %}
+    <p>Корзина пуста.</p>
+{% endif %}
+
+<script>
+document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('change', function () {
+        const itemId = this.dataset.itemId;
+        const quantity = this.value;
+
+        fetch(`/cart/update/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({quantity: quantity})
+        })
+        .then(response => response.json())
+        .then(data => {
+            const row = document.querySelector(`tr[data-item-id="${itemId}"]`);
+            row.querySelector('.item-total').innerText = data.item_total.toFixed(2) + ' ₽';
+            document.getElementById('cart-total').innerText = data.cart_total.toFixed(2) + ' ₽';
+        });
+    });
+});
+
+document.querySelectorAll('.remove-item').forEach(button => {
+    button.addEventListener('click', function () {
+        const bookId = this.dataset.bookId;
+        const row = this.closest('tr');
+
+        fetch(`/cart/remove/${bookId}/`)
+            .then(() => {
+                row.remove();
+                // Обновить общую сумму
+                fetch('/cart/')
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTotal = doc.querySelector('#cart-total');
+                        if (newTotal) {
+                            document.getElementById('cart-total').innerText = newTotal.innerText;
+                        } else {
+                            document.getElementById('cart-table').remove();
+                            const p = document.createElement('p');
+                            p.textContent = "Корзина пуста.";
+                            document.querySelector('h2').after(p);
+                        }
+                    });
+            });
+    });
+});
+</script>
+
+{% endblock %}

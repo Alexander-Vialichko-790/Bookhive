@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      {% include "store/partials/account_sidebar.html" %}
+    </div>
+
+    <!-- Profile Edit Form -->
+    <div class="col-md-9">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title text-center mb-4">Редактировать профиль</h3>
+
+          <div class="text-center mb-4">
+            {% if user.profile.photo %}
+              <img src="{{ user.profile.photo.url }}" class="rounded-circle shadow" width="150" height="150" style="object-fit: cover;" alt="Аватар">
+            {% else %}
+              <img src="{% static 'img/default_avatar.jpg' %}" class="rounded-circle shadow" width="150" height="150" alt="Аватар">
+            {% endif %}
+          </div>
+
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <h5 class="mb-3">Данные профиля</h5>
+            <div class="mb-3">
+              <label class="form-label">Имя</label>
+              {{ user_form.first_name|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Фамилия</label>
+              {{ user_form.last_name|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              {{ user_form.email|add_class:"form-control" }}
+            </div>
+
+            <h5 class="mt-4 mb-3">Дополнительно</h5>
+            <div class="mb-3">
+              <label class="form-label">Телефон</label>
+              {{ profile_form.phone|add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Фото</label>
+              {{ profile_form.photo|add_class:"form-control" }}
+            </div>
+            <div class="form-check mb-4">
+              {{ profile_form.subscribed_to_discounts|add_class:"form-check-input" }}
+              <label class="form-check-label">Получать уведомления о скидках</label>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">
+                💾 Сохранить изменения
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

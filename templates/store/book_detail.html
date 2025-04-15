@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <!-- 🖼️ Галерея + Основная информация -->
+  <div class="row mb-5">
+    <div class="col-md-1">
+      {% if book.images.count > 1 %}
+        <div class="d-flex flex-column gap-2">
+          {% for img in book.images.all %}
+            <a href="#slide{{ forloop.counter0 }}" data-bs-target="#bookCarousel" data-bs-slide-to="{{ forloop.counter0 }}">
+              <img src="{{ img.image.url }}" class="img-thumbnail" style="height: 60px; object-fit: cover;">
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-3">
+      {% if book.images.all %}
+        <div id="bookCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% for img in book.images.all %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}" id="slide{{ forloop.counter0 }}">
+                <img src="{{ img.image.url }}" class="d-block w-100 rounded shadow-sm" alt="{{ book.title }}" style="height: 400px; object-fit: contain;">
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <img src="{{ book.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ book.title }}" style="height: 400px; object-fit: contain;">
+      {% endif %}
+    </div>
+
+    <div class="col-md-8">
+      <h2 class="mb-2">{{ book.title }}</h2>
+
+      <!-- 📊 Оценка и отзывы -->
+      <div class="mb-3">
+        {% if avg_rating %}
+          <span class="text-warning"><i class="bi bi-star-fill"></i></span>
+          <strong>{{ avg_rating|floatformat:1 }}</strong>
+          <small class="text-muted">({{ reviews.count }} оцен{% if reviews.count|add:"0"|divisibleby:10 or reviews.count|add:"0"|divisibleby:11 %}ок{% elif reviews.count|add:"0"|stringformat:"s"|slice:"-1" == "1" %}ка{% elif reviews.count|add:"0"|stringformat:"s"|slice:"-1" in "234" %}ки{% else %}ок{% endif %})</small>
+          <a href="#reviews" class="ms-2 fw-semibold text-primary">{{ reviews.count }} рецензи{% if reviews.count|add:"0"|divisibleby:10 or reviews.count|add:"0"|divisibleby:11 %}й{% elif reviews.count|add:"0"|stringformat:"s"|slice:"-1" == "1" %}я{% elif reviews.count|add:"0"|stringformat:"s"|slice:"-1" in "234" %}и{% else %}й{% endif %}</a>
+        {% else %}
+          <span class="text-muted">Пока нет оценок</span>
+        {% endif %}
+      </div>
+
+      <p><strong>Автор:</strong> {{ book.author.name }}</p>
+      <p><strong>Жанр:</strong> {{ book.genre.name }}</p>
+      <p><strong>Издательство:</strong> {{ book.publisher.name }}</p>
+      <p><strong>Год:</strong> {{ book.year }}</p>
+
+      {% if book.discount %}
+        <p>
+          <del class="text-muted">{{ book.price|floatformat:2 }} ₽</del>
+          <span class="fw-bold text-danger ms-2">{{ book.discounted_price|floatformat:2 }} ₽</span>
+          <span class="badge bg-danger ms-2">-{{ book.discount }}%</span>
+        </p>
+      {% else %}
+        <p><strong>Цена:</strong> <span class="fw-bold text-success">{{ book.price|floatformat:2 }} ₽</span></p>
+      {% endif %}
+
+      {% if book.cashback %}
+        <p>💰 <small>Кэшбэк: {{ book.cashback }} ₽ будет начислен после покупки</small></p>
+      {% endif %}
+
+      <p>
+        {% if book.status == 'in_stock' %}
+          ✅ <span class="text-success">В наличии</span>
+        {% elif book.status == 'preorder' %}
+          🔴 <span class="text-warning">Под заказ</span>
+        {% else %}
+          ❌ <span class="text-danger">Нет в наличии</span>
+        {% endif %}
+      </p>
+
+      <p><strong>Описание:</strong> {{ book.description }}</p>
+
+      <a href="{% url 'add_to_cart' book.pk %}" class="btn btn-outline-primary mt-3">
+        🛒 Добавить в корзину
+      </a>
+    </div>
+  </div>
+
+  <!-- 🌟 Отзывы -->
+  <hr id="reviews">
+  <h4 class="mb-4">Отзывы</h4>
+
+  {% if reviews %}
+    {% for review in reviews %}
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-center mb-2">
+              <img src="{% if review.user.profile.photo %}{{ review.user.profile.photo.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
+              alt="Аватар"
+                   class="rounded-circle me-2"
+                   style="width: 40px; height: 40px; object-fit: cover;">
+              <h5 class="mb-0">{{ review.user.username }}</h5>
+            </div>            
+            <small class="text-muted">{{ review.created_at|date:"d.m.Y H:i" }}</small>
+          </div>
+          <div class="mb-2">
+            {% for i in "12345" %}
+              {% if review.rating|add:0 >= forloop.counter %}
+                <i class="bi bi-star-fill text-warning"></i>
+              {% else %}
+                <i class="bi bi-star text-secondary"></i>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <p class="mb-2">{{ review.text }}</p>
+
+          {% if review.user == user %}
+          <div class="d-flex gap-2">
+            <a href="{% url 'edit_review' review.pk %}" class="btn btn-sm btn-outline-secondary">✏️ Редактировать</a>
+            <a href="{% url 'delete_review' review.pk %}" class="btn btn-sm btn-outline-danger">🗑️ Удалить</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted">Отзывов пока нет.</p>
+  {% endif %}
+
+  <!-- ✍️ Форма отзыва -->
+  <hr>
+  {% if user.is_authenticated %}
+    <div class="mt-4">
+      <h5>Оставить отзыв</h5>
+      <form method="post" class="mt-3">
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ form.text.label_tag }}
+          {{ form.text|add_class:"form-control" }}
+          {% for error in form.text.errors %}
+            <div class="form-text text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.rating.label_tag }}
+          {{ form.rating|add_class:"form-select w-auto" }}
+          {% for error in form.rating.errors %}
+            <div class="form-text text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-success">Отправить</button>
+      </form>
+    </div>
+  {% else %}
+    <p class="mt-3">Войдите, чтобы оставить отзыв.</p>
+  {% endif %}
+
+</div>
+{% endblock %}

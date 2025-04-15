@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Детали заказа{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      {% include "store/partials/account_sidebar.html" %}
+    </div>
+
+    <!-- Order Details -->
+    <div class="col-md-9">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title text-center mb-4">🧾 Детали заказа №{{ order.id }}</h3>
+
+          <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item">
+              <strong>📦 Статус:</strong> {{ order.get_status_display }}
+            </li>
+            <li class="list-group-item">
+              <strong>🕒 Дата оформления:</strong> {{ order.created|date:"d.m.Y H:i" }}
+            </li>
+            <li class="list-group-item">
+              <strong>💰 Сумма:</strong> {{ order.get_total_cost }} ₽
+            </li>
+            <li class="list-group-item">
+                <strong>💳 Стоимость без кэшбэка:</strong> {{ cart_total }} ₽
+              </li>
+              <li class="list-group-item">
+                <strong>🎁 Списано с бонусного счёта:</strong> -{{ cashback_used }} ₽
+              </li>
+              <li class="list-group-item">
+                <strong>💸 Итого к оплате:</strong> {{ final_total }} ₽
+              </li>
+              <li class="list-group-item">
+                <strong>🟢 Кэшбэк за заказ:</strong> +{{ cashback_earned }} ₽
+              </li>
+              <li class="list-group-item">
+                <strong>💰 Ваш бонусный счёт:</strong> {{ bonus_balance }} ₽
+              </li>              
+            <li class="list-group-item">
+              <strong>👤 Имя:</strong> {{ order.first_name }} {{ order.last_name }}
+            </li>
+            <li class="list-group-item">
+              <strong>📧 Email:</strong> {{ order.email }}
+            </li>
+            <li class="list-group-item">
+              <strong>📱 Телефон:</strong> {{ order.phone }}
+            </li>
+            <li class="list-group-item">
+              <strong>🏠 Адрес доставки:</strong> {{ order.address }}
+            </li>
+          </ul>
+
+          <h5 class="fw-bold mb-3">📚 Товары в заказе:</h5>
+          <ul class="list-group mb-4">
+            {% for item in items %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ item.book.title }}
+                <span class="text-muted">
+                  {{ item.quantity }} шт. × {{ item.price }} ₽
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+
+          {% if order.can_be_cancelled %}
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <form method="post" action="{% url 'cancel_order' order.id %}" onsubmit="return confirm('Вы уверены, что хотите отменить заказ?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                  ❌ Отменить заказ
+                </button>
+              </form>
+
+              <a href="{% url 'edit_order' order.id %}" class="btn btn-primary">
+                ✏️ Редактировать заказ
+              </a>
+            </div>
+          {% endif %}
+
+          {% if order.status == 'pending' and not order.is_paid %}
+          <div class="mt-4 d-flex justify-content-center">
+            <a href="{% url 'payment_view' order.pk %}" class="btn btn-success btn-lg">
+              💳 Оплатить заказ
+            </a>
+          </div>
+        {% endif %}      
+        
+
+          <div class="text-center mt-4">
+            <a href="{% url 'my_orders' %}" class="btn btn-outline-secondary">
+              ⬅ Вернуться к заказам
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

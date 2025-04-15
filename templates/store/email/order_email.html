@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; }
+        h2 { color: #333; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 5px 0; }
+    </style>
+</head>
+<body>
+    <h2>🧾 Детали заказа №{{ order.id }}</h2>
+    <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+    <p><strong>Дата оформления:</strong> {{ order.created|date:"d.m.Y H:i" }}</p>
+    <p><strong>Имя:</strong> {{ order.first_name }} {{ order.last_name }}</p>
+    <p><strong>Email:</strong> {{ order.email }}</p>
+    <p><strong>Телефон:</strong> {{ order.phone }}</p>
+    <p><strong>Адрес:</strong> {{ order.address }}</p>
+
+    <h3>📚 Товары:</h3>
+    <ul>
+        {% for item in items %}
+        <li>{{ item.book.title }} — {{ item.quantity }} шт. × {{ item.price }} ₽</li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+    <p><strong>💰 Стоимость без кэшбэка:</strong> {{ cart_total }} ₽</p>
+    <p><strong>🎁 Списано с бонусного счёта:</strong> -{{ cashback_used }} ₽</p>
+    <p><strong>💸 Итого к оплате:</strong> {{ final_total }} ₽</p>
+    <p><strong>🟢 Кэшбэк за заказ:</strong> +{{ cashback_earned }} ₽</p>
+    <p><strong>💰 Ваш бонусный счёт:</strong> {{ bonus_balance }} ₽</p>
+</body>
+</html>

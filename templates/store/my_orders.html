@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Мои заказы{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      {% include "store/partials/account_sidebar.html" %}
+    </div>
+
+    <!-- Orders Content -->
+    <div class="col-md-9">
+      <h2 class="mb-4">🧾 Мои заказы</h2>
+
+      {% if orders_with_totals %}
+        <div class="row g-4">
+          {% for entry in orders_with_totals %}
+            {% with order=entry.order final_total=entry.final_total %}
+              <div class="col-12">
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <strong>Заказ №{{ order.id }}</strong>
+                    </h5>
+                    <p class="card-text mb-2">
+                      <i class="bi bi-clock"></i>
+                      {{ order.created|date:"d.m.Y H:i" }} <br>
+                      <i class="bi bi-info-circle"></i>
+                      <em>{{ order.get_status_display }}</em> <br>
+                      <i class="bi bi-currency-ruble"></i>
+                      <strong>{{ final_total }} ₽</strong>
+                      {% if order.cashback_used > 0 %}
+                        <small class="text-muted">(включая -{{ order.cashback_used }} ₽ бонусов)</small>
+                      {% endif %}
+                    </p>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                      <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary">
+                        📄 Детали заказа
+                      </a>
+                      {% if order.status == 'pending' and not order.is_paid %}
+                        <a href="{% url 'payment_view' order.pk %}" class="btn btn-success">Оплатить заказ</a>
+                      {% endif %}
+
+                      {% if order.can_be_cancelled %}
+                        <form method="post" action="{% url 'cancel_order' order.id %}" onsubmit="return confirm('Вы уверены, что хотите отменить заказ?');">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-danger">
+                            ❌ Отменить заказ
+                          </button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info text-center" role="alert">
+          У вас пока нет заказов.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

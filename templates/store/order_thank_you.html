@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Спасибо за оплату{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+  <h2 class="mb-3">🎉 Спасибо за оплату!</h2>
+  <p>Ваш заказ №{{ order.id }} успешно оплачен.</p>
+  <a href="{% url 'my_orders' %}" class="btn btn-outline-primary mt-3">Перейти к заказам</a>
+</div>
+{% endblock %}

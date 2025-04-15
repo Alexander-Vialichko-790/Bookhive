@@ -1,0 +1,18 @@
+<div class="list-group shadow-sm rounded">
+    <a href="{% url 'profile' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+        🧍 Профиль
+    </a>
+    <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}">
+        ✏️ Редактировать
+    </a>
+    <a href="{% url 'my_orders' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}">
+        📦 Мои заказы
+    </a>              
+    <a href="{% url 'favorites_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'favorites_list' %}active{% endif %}">
+        ❤️ Избранное
+    </a>
+    <a href="{% url 'my_reviews' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'my_reviews' %}active{% endif %}">
+        ✍️ Мои отзывы
+    </a>
+  </div>
+  

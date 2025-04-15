@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Уведомления</h2>
+
+    {% if notifications %}
+        <ul class="list-group">
+            {% for note in notifications %}
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">{{ note.title }}</div>
+                        {{ note.message }}
+                    </div>
+                    <span class="badge bg-secondary rounded-pill">{{ note.created_at|date:"d.m.Y H:i" }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">У вас пока нет уведомлений.</div>
+    {% endif %}
+</div>
+{% endblock %}

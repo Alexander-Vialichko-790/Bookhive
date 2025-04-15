@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center">
+  <h2>Спасибо за заказ!</h2>
+  <p>Ваш заказ №{{ order.id }} был успешно оформлен.</p>
+  <p>Мы свяжемся с вами по указанному email: <strong>{{ order.email }}</strong></p>
+  <a href="{% url 'catalog' %}" class="btn btn-primary mt-3">Вернуться в каталог</a>
+</div>
+{% endblock %}

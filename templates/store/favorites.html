@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      {% include "store/partials/account_sidebar.html" %}
+    </div>
+
+    <!-- Main content -->
+    <div class="col-md-9">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="mb-4">❤️ Избранное</h4>
+
+          {% if favorites %}
+            <div class="row">
+              {% for fav in favorites %}
+                <div class="col-md-6 col-lg-4 d-flex">
+                  <div class="card mb-4 shadow-sm w-100 d-flex flex-column">
+                    <img src="{{ fav.book.image.url }}" class="card-img-top" alt="{{ fav.book.title }}" style="height: 220px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                      <h6 class="card-title text-truncate" title="{{ fav.book.title }}">{{ fav.book.title }}</h6>
+                      <p class="text-muted mb-1 small">{{ fav.book.author.name }}</p>
+
+                      {% if fav.book.discount %}
+                        <p class="mb-1 text-muted small text-decoration-line-through">{{ fav.book.price }} ₽</p>
+                        <p class="fw-bold text-danger mb-2">{{ fav.book.discounted_price|floatformat:2 }} ₽</p>
+                      {% else %}
+                        <p class="fw-bold text-primary mb-2">{{ fav.book.price }} ₽</p>
+                      {% endif %}
+
+                      <div class="mt-auto d-flex flex-column gap-2">
+                        <a href="{% url 'book_detail' fav.book.pk %}" class="btn btn-sm btn-outline-primary w-100">
+                          Подробнее
+                        </a>
+                        <a href="{% url 'buy_now' fav.book.pk %}" class="btn btn-sm btn-warning w-100">
+                          Купить в 1 клик
+                        </a>
+                        <a href="{% url 'remove_from_favorites' fav.book.pk %}" class="btn btn-sm btn-outline-danger w-100">
+                          Удалить ❤️
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info text-center mb-0">
+              У вас пока нет избранных книг.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

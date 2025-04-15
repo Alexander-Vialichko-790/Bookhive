@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Боковое меню -->
+        <div class="col-md-3">
+            <div class="list-group shadow-sm rounded">
+                <a href="{% url 'profile' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    🧍 Профиль
+                </a>
+                <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action">
+                    ✏️ Редактировать
+                </a>
+                <a href="{% url 'my_orders' %}" class="list-group-item list-group-item-action">
+                  📦 Мои заказы
+                </a>              
+                <a href="{% url 'favorites_list' %}" class="list-group-item list-group-item-action">
+                    ❤️ Избранное
+                </a>
+                <a href="{% url 'my_reviews' %}" class="list-group-item list-group-item-action">
+                    ✍️ Мои отзывы
+                </a>
+            </div>
+        </div>
+
+        <!-- Профиль -->
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Мой профиль</h3>
+                    
+                    <div class="text-center mb-4">
+                        {% if user.profile.photo %}
+                            <img src="{{ user.profile.photo.url }}" class="rounded-circle shadow-sm" width="150" height="150" style="object-fit: cover;" alt="Аватар">
+                        {% else %}
+                            <img src="{% static 'img/default_avatar.jpg' %}" class="rounded-circle shadow-sm" width="150" height="150" alt="Аватар">
+                        {% endif %}
+                    </div>
+
+                    <!-- 🔹 Бонусный счёт -->
+                    <div class="alert alert-info text-center fw-bold mb-4" role="alert">
+                        💰 Бонусный счёт: {{ cashback }} ₽
+                    </div>
+
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th>Имя</th>
+                                <td>{{ user.first_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Фамилия</th>
+                                <td>{{ user.last_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{ user.email }}</td>
+                            </tr>
+                            <tr>
+                                <th>Телефон</th>
+                                <td>{{ user.profile.phone }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
